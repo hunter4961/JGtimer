@@ -8,8 +8,9 @@ class MainApplication(Frame):
     def __init__(self, master):
         self.master = master
         ttk.Frame.__init__(self, self.master)
-        self.id_label = ttk.Label(self)
-        self.id_entry = ttk.Entry(self)
+        self.id_var = StringVar()  # Sztringváltozó amiben a lekérendő felhasználó azonosítóját tartjuk
+        self.id_label = ttk.Label(self) # A címke amin a bemeneti doboz felett jelenítünk meg szöveget
+        self.id_entry = ttk.Entry(self) # A bemeneti doboz amiben 
         self.search_button = ttk.Button(self)
         self.result_box = Text(self)
         self.configure_gui()
@@ -20,21 +21,40 @@ class MainApplication(Frame):
         # TODO
 
     def configure_gui(self): # Ebben a metódusban adjuk meg, hogyan nézzenek ki a widgeteink
-        self.id_label.configure(text='Username')
-        self.id_entry.configure(textvariable=id_var)
+        # Ablakon beluli widgetek:
+        self.master.title('JGtimer')
+        self.id_label.configure(text='Username:')
+        self.id_entry.configure(textvariable=self.id_var)
         self.search_button.configure(text='Search...')
-        self.configure(width=300, height=300)  # Beállítja az ablak méretét pixelekben
+        self.result_box.configure()
+        #
+        # Grid layout varázslás:
+        self.master.geometry("300x450")
+        # Ha azt akarom itt lehet "width x height" formátumban megadni az ablak méretét
+        # pixelekben lesz megadva
+        self.master.columnconfigure(0, weight=1)
+        self.master.rowconfigure(0, weight=1)
+        # Ez a két sor kell ahhoz, hogy az ablak méretét lehessen dinamikusan változtatni
+        # Ha azt végül nem akarjuk akkor nem kell
+        for col in range(0, 2):
+            self.columnconfigure(col, weight=1)
+        for row in range(0, 2):
+            self.rowconfigure(row, weight=1)
+        self.rowconfigure(row, weight=2)
+        # Súlyokat oszt a soroknak és oszlopoknak, még nem jó majd játsz vele nyugodtan
+        # -Peti
 
     def create_widgets(self): # Ez a metódus tölti be őket a megfelelő helyre a gridben
-        self.grid()
-        self.id_label.grid(row=0, column=0)
-        self.id_entry.grid(row=1, column=0)
-        self.search_button.grid(row=1, column=1)
-        self.result_box.grid(row=2, column=0, columnspan=2)
+        self.grid(sticky=(N, W, E, S)) # "Ragadás"
+        self.id_label.grid(row=0, column=0, sticky=W)  # A "Username:" labelt balra igazitja, a 0/0-as cellaban
+        self.id_entry.grid(row=1, column=0, sticky=(W, E))  # A bemeneti box-ot átméretezi hogy a 1/0-as cellát kitöltse
+        self.search_button.grid(row=1, column=1, sticky=W)  # A Kereső gombot odaragasztja az 1/1-es cella bal oldalára
+        self.result_box.grid(row=2, column=0, columnspan=2, sticky=(N, W, E, S))
+        # TODO:
+        # - A result boxnak kéne kitalálni valami fix méretet, hogy köré igazítsam a dolgokat
 
 
 if __name__ == '__main__':
     root = Tk()
-    id_var = StringVar()  # Sztringváltozó amiben a lekérendő felhasználó azonosítóját tartjuk
     main_app = MainApplication(root)
     root.mainloop()
