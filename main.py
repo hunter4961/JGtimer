@@ -3,6 +3,7 @@
 from tkinter import *
 from tkinter import ttk
 
+#ez egy komment
 
 class MainApplication(Frame):
 
