@@ -51,7 +51,7 @@ class MainApplication(Frame):
 
             output = "{0:13} {1:^8} {2:>17}".format("Name", "K |D |A ", "Vision") + "\n"
             for i in range(0, 10):
-                kda = "{0:>2}|{1:>2}|{2:>2}".format(str(kills[i]), str(assists[i]), str(deaths[i]))
+                kda = "{0:>2}|{1:>2}|{2:>2}".format(str(kills[i]), str(deaths[i]), str(assists[i]))
                 output = output + "{0:13} {1:^8} {2:>17}".format(championName[i], kda, visionScore[i]) + "\n"
             self.result_box.configure(state='normal')
             self.result_box.delete('1.0', END)  # Kitörlöm a doboz korábbi tartalmát
