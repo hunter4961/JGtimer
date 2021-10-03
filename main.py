@@ -2,59 +2,82 @@
 
 from tkinter import *
 from tkinter import ttk
+import LastMatch
+import MatchList
+import SummonerDTO
+import json
 
-#ez egy komment
+
 
 class MainApplication(Frame):
 
     def __init__(self, master):
         self.master = master
         ttk.Frame.__init__(self, self.master)
+        self.api_var = StringVar()  # Sztringváltozó az apikulcs bekérésére
         self.id_var = StringVar()  # Sztringváltozó amiben a lekérendő felhasználó azonosítóját tartjuk
         self.id_label = ttk.Label(self)  # A címke amin a bemeneti doboz felett jelenítünk meg szöveget
+        self.api_label = ttk.Label(self)  #
         self.id_entry = ttk.Entry(self)  # A bemeneti doboz amiben a felhasználó az azonosítóját adhatja meg
+        self.api_entry = ttk.Entry(self)
         self.search_button = ttk.Button(self)  # A gomb aminek a megnyomásával lefut a keresés
         self.result_box = Text(self)  # Textbox amibe majd megy a megformázott meccsadat
         self.configure_gui()
         self.create_widgets()
 
     def get_matchdata(self, *args):
-        self.result_box.insert('1.0', self.id_entry.get())  # Teszt cucc...
-        # A result_box insert metódusával tehetjuk majd bele a szöveget sorosával
-        # az első paraméter a 'hanyadik sor. hanyadik karakter' formátumban
-        # a második pedig a beillesztendő szöveg
-        # TODO
+        summonerName = self.id_entry.get()
+        APIKey = self.api_entry.get()
+        responseJSON = SummonerDTO.getSummonerData(summonerName, APIKey)
+        puuid = responseJSON['puuid']
+
+        responseJSON2 = MatchList.getMatchList(puuid, APIKey)
+        lastid = responseJSON2[0]
+
+        responseJSON3 = LastMatch.getLastMatch(lastid, APIKey)
+        self.result_box.delete('1.0', END)  # Kitörlöm a doboz korábbi tartalmát
+        self.result_box.insert('1.0', responseJSON3)  # Beszúrom az új tartalmat
+
 
     def configure_gui(self):  # Ebben a metódusban adjuk meg, hogyan nézzenek ki a widgeteink
         # Ablakon beluli widgetek:
         self.master.title('JGtimer')
         self.id_label.configure(text='Username:')
+        self.api_label.configure(text='Api key:')
         self.id_entry.configure(textvariable=self.id_var)
+        self.api_entry.configure(textvariable=self.api_var, show='*')
         self.search_button.configure(text='Search...', command=self.get_matchdata)
-        self.result_box.configure()
+        self.result_box.configure(height=20, width=40)
         #
         # Grid layout varázslás:
-        self.master.geometry("300x450")
+        # self.master.geometry("300x450")
         # Ha azt akarom itt lehet "width x height" formátumban megadni az ablak méretét
         # pixelekben lesz megadva
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
+        self.master.resizable(0, 0)
         # Ez a két sor kell ahhoz, hogy az ablak méretét lehessen dinamikusan változtatni
         # Ha azt végül nem akarjuk akkor nem kell
-        for col in range(0, 2):
+        for col in range(0, 4):
             self.columnconfigure(col, weight=1)
-        for row in range(0, 2):
+        for row in range(0, 4):
             self.rowconfigure(row, weight=1)
-        self.rowconfigure(2, weight=2)
+        self.rowconfigure(4, weight=2)
         # Súlyokat oszt a soroknak és oszlopoknak, még nem jó majd játsz vele nyugodtan
         # -Peti
 
     def create_widgets(self):  # Ez a metódus tölti be őket a megfelelő helyre a gridben
-        self.grid(sticky=(N, W, E, S))  # "Ragadás"
-        self.id_label.grid(row=0, column=0, sticky=W)  # A "Username:" labelt balra igazitja, a 0/0-as cellaban
-        self.id_entry.grid(row=1, column=0, sticky=(W, E))  # A bemeneti box-ot átméretezi hogy a 1/0-as cellát kitöltse
-        self.search_button.grid(row=1, column=1, sticky=W)  # A Kereső gombot odaragasztja az 1/1-es cella bal oldalára
-        self.result_box.grid(row=2, column=0, columnspan=2, sticky=(N, W, E, S))
+        self.grid(padx=5, pady=5, sticky=(N, W, E, S))
+        # USERNAME:
+        self.id_label.grid(row=2, column=0, sticky=W)  # A "Username:" labelt balra igazitja, a 0/0-as cellaban
+        self.id_entry.grid(row=3, column=0, sticky=(W, E))  # A bemeneti box-ot átméretezi hogy a 1/0-as cellát kitöltse
+        # API KEY
+        self.api_entry.grid(row=1, column=0, sticky=(W, E))
+        self.api_label.grid(row=0, column=0, sticky=W)
+        # SEARCH BUTTON
+        self.search_button.grid(row=3, column=1)  # A Kereső gombot odaragasztja az 1/1-es cella bal oldalára
+        # RESULT BOX
+        self.result_box.grid(row=4, column=0, columnspan=2, sticky=(N, W, E, S), pady=(5, 0))
         # TODO:
         # - A result boxnak kéne kitalálni valami fix méretet, hogy köré igazítsam a dolgokat
 
