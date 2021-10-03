@@ -35,6 +35,20 @@ class MainApplication(Frame):
         lastid = responseJSON2[0]
 
         responseJSON3 = LastMatch.getLastMatch(lastid, APIKey)
+
+        championName = []
+        kills = []
+        assists = []
+        deaths = []
+        visionScore = []
+
+        for i in range(0, len(responseJSON3['info']['participants'])):
+            championName.append(responseJSON3['info']['participants'][i]['championName'])
+            kills.append(responseJSON3['info']['participants'][i]['kills'])
+            assists.append(responseJSON3['info']['participants'][i]['assists'])
+            deaths.append(responseJSON3['info']['participants'][i]['deaths'])
+            visionScore.append(responseJSON3['info']['participants'][i]['visionScore'])
+
         self.result_box.delete('1.0', END)  # Kitörlöm a doboz korábbi tartalmát
         self.result_box.insert('1.0', responseJSON3)  # Beszúrom az új tartalmat
 
