@@ -8,7 +8,6 @@ import SummonerDTO
 import json
 
 
-
 class MainApplication(Frame):
 
     def __init__(self, master):
@@ -29,29 +28,37 @@ class MainApplication(Frame):
         summonerName = self.id_entry.get()
         APIKey = self.api_entry.get()
         responseJSON = SummonerDTO.getSummonerData(summonerName, APIKey)
-        puuid = responseJSON['puuid']
+        try:
+            puuid = responseJSON['puuid']
 
-        responseJSON2 = MatchList.getMatchList(puuid, APIKey)
-        lastid = responseJSON2[0]
+            responseJSON2 = MatchList.getMatchList(puuid, APIKey)
+            lastid = responseJSON2[0]
 
-        responseJSON3 = LastMatch.getLastMatch(lastid, APIKey)
+            responseJSON3 = LastMatch.getLastMatch(lastid, APIKey)
 
-        championName = []
-        kills = []
-        assists = []
-        deaths = []
-        visionScore = []
+            championName = []
+            kills = []
+            assists = []
+            deaths = []
+            visionScore = []
 
-        for i in range(0, len(responseJSON3['info']['participants'])):
-            championName.append(responseJSON3['info']['participants'][i]['championName'])
-            kills.append(responseJSON3['info']['participants'][i]['kills'])
-            assists.append(responseJSON3['info']['participants'][i]['assists'])
-            deaths.append(responseJSON3['info']['participants'][i]['deaths'])
-            visionScore.append(responseJSON3['info']['participants'][i]['visionScore'])
+            for i in range(0, len(responseJSON3['info']['participants'])):
+                championName.append(responseJSON3['info']['participants'][i]['championName'])
+                kills.append(responseJSON3['info']['participants'][i]['kills'])
+                assists.append(responseJSON3['info']['participants'][i]['assists'])
+                deaths.append(responseJSON3['info']['participants'][i]['deaths'])
+                visionScore.append(responseJSON3['info']['participants'][i]['visionScore'])
 
-        self.result_box.delete('1.0', END)  # Kitörlöm a doboz korábbi tartalmát
-        self.result_box.insert('1.0', responseJSON3)  # Beszúrom az új tartalmat
-
+            output = "{0:13} {1:^8} {2:>17}".format("Name", "K |D |A ", "Vision") + "\n"
+            for i in range(0, 10):
+                kda = "{0:>2}|{1:>2}|{2:>2}".format(str(kills[i]), str(assists[i]), str(deaths[i]))
+                output = output + "{0:13} {1:^8} {2:>17}".format(championName[i], kda, visionScore[i]) + "\n"
+            self.result_box.configure(state='normal')
+            self.result_box.delete('1.0', END)  # Kitörlöm a doboz korábbi tartalmát
+            self.result_box.insert('1.0', output)  # Beszúrom az új tartalmat
+            self.result_box.configure(state='disable')
+        except:
+            pass
 
     def configure_gui(self):  # Ebben a metódusban adjuk meg, hogyan nézzenek ki a widgeteink
         # Ablakon beluli widgetek:
@@ -61,7 +68,7 @@ class MainApplication(Frame):
         self.id_entry.configure(textvariable=self.id_var)
         self.api_entry.configure(textvariable=self.api_var, show='*')
         self.search_button.configure(text='Search...', command=self.get_matchdata)
-        self.result_box.configure(height=20, width=40)
+        self.result_box.configure(height=11, width=40, state='disable')
         #
         # Grid layout varázslás:
         # self.master.geometry("300x450")
