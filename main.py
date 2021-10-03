@@ -74,6 +74,8 @@ class MainApplication(Frame):
         # self.master.geometry("300x450")
         # Ha azt akarom itt lehet "width x height" formátumban megadni az ablak méretét
         # pixelekben lesz megadva
+        self.id_entry.bind("<Return>", self.get_matchdata)
+        self.api_entry.bind("<Return>", self.get_matchdata)
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
         self.master.resizable(0, 0)
